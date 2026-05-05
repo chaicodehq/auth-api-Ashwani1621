@@ -14,8 +14,19 @@ import { signToken } from '../utils/jwt.js';
 export async function register(req, res, next) {
   try {
     // Your code here
+    const { name, email, password } = req.body;
+    const existingUser = await User.findOne({email});
+    if(existingUser){
+      return res.status(409).json({error: {message: "Email already exists"}})
+    }
+    const user = new User({name, email, password});
+    await user.save();
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    res.status(201).json({user: userResponse})
   } catch (error) {
-    next(error);
+      
+      next(error);
   }
 }
 
